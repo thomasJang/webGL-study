@@ -18,6 +18,8 @@
 		<canvas id="canvasOne" width="500" height="300">
 			Not support HTML5 Canvas.
 		</canvas>
+
+		<button type="button" id="createImage">이미지만들기</button>
 	</div>
 
 <script>
@@ -28,23 +30,91 @@
 
 		var guesses = 0;
 		var message = "Guess The Letter From a (lower) to z (higher)";
-		var letter = "abcdefghijklmnopqrstuvwxyz".split("");
+		var letters = "abcdefghijklmnopqrstuvwxyz".split("");
 		var today = new Date();
 		var letterToGuess = "";
 		var higherOrLower = "";
 		var letterGuessed;
 		var gameOver = false;
-		
+
+		initGame();
+
 		function initGame(){
+			var letterIndex = Math.floor(Math.random() * letters.length);
+			letterToGuess = letters[letterIndex];
+			guesses = 0;
+			letterGuessed = [];
+			gameOver = false;
+			ax5.dom(window).on("keyup", eventKeyPressed);
+			drawScreen();
+		}
+		function drawScreen(){
+			// 배경화면
+			context.fillStyle = "#ffffaa";
+			context.fillRect(0,0,500,300);
+			// 사각형
+			context.strokeStyle = "#000";
+			context.strokeRect(5,5,490,290);
+			context.textBaseline = "top";
+			// 날짜
+			context.fillStyle = "#000";
+			context.font = "10px _sans";
+			context.fillText(today, 150, 10);
+			// 메시지
+			context.fillStyle = "#ff0000";
+			context.font = "14px _sans";
+			context.fillText(message, 125, 30);
+			// 추측
+			context.fillStyle = "#109910";
+			context.font = "16px _sans";
+			context.fillText("시도횟수 : " + guesses, 215, 50);
+			// 더 높은지 낮은지
+			context.fillStyle = "#000";
+			context.font = "16px _sans";
+			context.fillText("H/L : " + higherOrLower, 150, 125);
+
+			// 추측한 문자
+			context.fillStyle = "#ff0000";
+			context.font = "16px _sans";
+			context.fillText("Letter Guessed: " + letterGuessed.toString(), 10, 260);
+
+			if(gameOver){
+				context.fillStyle = "#ff0000";
+				context.font = "40px _sans";
+				context.fillText("You Got It!: ", 150, 180);
+			}
 
 		}
-		//drawScreen();
-		
-		ax5.dom(window).on("keyup", function(e){
-			console.log(e);
-		})
+		function eventKeyPressed(e){
+			if(!gameOver){
+				var letterPressed = String.fromCharCode(e.keyCode).toLowerCase();
+				guesses++;
+				letterGuessed.push(letterPressed);
+				if(letterPressed == letterToGuess){
+					gameOver = true;
+					higherOrLower = "Match";
+				}
+				else
+				{
+					letterIndex = letters.indexOf(letterToGuess);
+					guessIndex = letters.indexOf(letterPressed);
+					if(guessIndex < 0){
+						higherOrLower = "That is not a letter";
+					}
+					else if(guessIndex > letterIndex){
+						higherOrLower = "Lower";
+					}
+					else{
+						higherOrLower = "Higher";
+					}
+				}
+				drawScreen();
+			}
+		}
 
-
+		ax5.dom("#createImage").on("click", function(){
+			window.open(theCanvas.toDataURL(), "canvasImage");
+		});
 	});
 </script>
 </body>
